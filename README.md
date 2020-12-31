@@ -1,6 +1,6 @@
 # GNOVA-2.0
 
-GNOVA (GeNetic cOVariance Analyzer), a principled framework to estimate annotation-stratified genetic covariance using GWAS summary statistics. The major different between GNOVA-2.0 and the previous version of GNOVA is that GNOVA-2.0 provides the estimation of SE for genetic correlation.
+GNOVA (GeNetic cOVariance Analyzer), a principled framework to estimate annotation-stratified genetic covariance using GWAS summary statistics. **The major different between GNOVA-2.0 and the previous version of GNOVA is that GNOVA-2.0 provides the estimation of SE for genetic correlation.**
 
 ## Requirements
 1. Python 2.7
