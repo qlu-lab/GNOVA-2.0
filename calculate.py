@@ -112,7 +112,7 @@ def calculate(gwas_snps, ld_scores, annots, N1, N2):
               'estimates were negative.')
 
     # p-value and standard error
-    cov_rho = np.cov(rho_block, bias=True) * (nblock - 1)
+    cov_rho = np.array([np.cov(rho_block, bias=True) * (nblock - 1)])
     se_rho = cov_rho.diagonal() ** 0.5
     cov_corr = np.array([np.cov(corr_block, bias=True) * (nblock - 1)])
     se_corr = cov_corr.diagonal() ** 0.5
