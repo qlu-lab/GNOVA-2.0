@@ -137,7 +137,6 @@ def calculate(gwas_snps, ld_scores, annots, N1, N2):
          ('p0', p0)
         ]
     ))
-
     # Check for all-1 annotations and remove them from the output
     has_all_ones = False
     if len(out) > 1:
