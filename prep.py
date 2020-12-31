@@ -35,9 +35,9 @@ def matched_or_reversed(df):
             tmp[np.array(df[colname]) == k] = v
         a.append(tmp)
     matched_alleles = (((a[0] == a[2]) & (a[1] == a[3])) |
-        ((a[0] == 3 - a[2]) | (a[1] == 3 - a[3])))
+        ((a[0] == 3 - a[2]) & (a[1] == 3 - a[3])))
     reversed_alleles = (((a[0] == a[3]) & (a[1] == a[2])) |
-        ((a[0] == 3 - a[0]) | (a[1] == 3 - a[2])))
+        ((a[0] == 3 - a[0]) & (a[1] == 3 - a[2])))
     return matched_alleles | reversed_alleles
 
 
