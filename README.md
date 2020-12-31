@@ -1,4 +1,4 @@
-# GNOVA
+# GNOVA-2.0
 
 GNOVA (GeNetic cOVariance Analyzer), a principled framework to estimate annotation-stratified genetic covariance using GWAS summary statistics.
 
