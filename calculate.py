@@ -127,12 +127,12 @@ def calculate(gwas_snps, ld_scores, annots, N1, N2):
          ('se_rho', se_rho),
          ('pvalue', p_value),
          ('pvalue_corrected', p_value_corrected),
-         ('corr', corr[0]),
+         ('corr', corr),
          ('se_corr', se_corr),
-         ('corr_corrected', corr_corrected[0]),
+         ('corr_corrected', corr_corrected),
          ('se_corr_corrected', se_corr_adjust),
-         ('h2_1', h2_1.T[0]),
-         ('h2_2', h2_2.T[0]),
+         ('h2_1', h2_1),
+         ('h2_2', h2_2),
          ('p', P),
          ('p0', p0)
         ]
