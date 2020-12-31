@@ -116,7 +116,7 @@ def calculate(gwas_snps, ld_scores, annots, N1, N2):
     se_rho = cov_rho.diagonal() ** 0.5
     cov_corr = np.array([np.cov(corr_block, bias=True) * (nblock - 1)], ndmin=2)
     se_corr = cov_corr.diagonal() ** 0.5
-    cov_corr_adjust = np.array([np.cov(corr_adjust, bias=True) * (nblock - 1)], ndmmin=2)
+    cov_corr_adjust = np.array([np.cov(corr_adjust, bias=True) * (nblock - 1)], ndmin=2)
     se_corr_adjust = cov_corr_adjust.diagonal() ** 0.5
     p_value = norm.sf(abs(rho / se_rho)) * 2
     p_value_corrected = norm.sf(abs(rho_corrected / se_rho)) * 2
