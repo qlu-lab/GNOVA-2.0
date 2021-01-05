@@ -120,17 +120,21 @@ def calculate(gwas_snps, ld_scores, annots, N1, N2):
     se_corr_adjust = cov_corr_adjust.diagonal() ** 0.5
     p_value = norm.sf(abs(rho / se_rho)) * 2
     p_value_corrected = norm.sf(abs(rho_corrected / se_rho)) * 2
+    p_value_corr = norm.sf(abs(corr / se_corr)) * 2
+    p_value_corrected_corr = norm.sf(abs(corr_corrected / se_corr_adjust)) * 2
 
     out = pd.DataFrame(collections.OrderedDict(
         [('rho', rho),
          ('rho_corrected', rho_corrected),
          ('se_rho', se_rho),
-         ('pvalue', p_value),
-         ('pvalue_corrected', p_value_corrected),
+         ('pvalue_cov', p_value),
+         ('pvalue_corrected_cov', p_value_corrected),
          ('corr', corr),
          ('se_corr', se_corr),
          ('corr_corrected', corr_corrected),
          ('se_corr_corrected', se_corr_adjust),
+         ('pvalue_corr', p_value_corr),
+         ('pvalue_corrected_corr', p_value_corrected_corr),
          ('h2_1', h2_1),
          ('h2_2', h2_2),
          ('p', P),
