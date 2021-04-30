@@ -57,16 +57,32 @@ def calculate(gwas_snps, ld_scores, annots, N1, N2):
     # Calculate heritability
     Z_x, Z_y = merged['Z_x'], merged['Z_y']
 
-    h2_1 = np.array([p0 * (np.mean(Z_x ** 2) - 1) / (N1 * np.mean(ld_score_all))])
-    h2_2 = np.array([p0 * (np.mean(Z_y ** 2) - 1) / (N2 * np.mean(ld_score_all))])
+    if annots is None:
+        h2_1 = np.array([p0 * (np.mean(Z_x ** 2) - 1) / (N1 * np.mean(ld_score_all))])
+        h2_2 = np.array([p0 * (np.mean(Z_y ** 2) - 1) / (N2 * np.mean(ld_score_all))])
+    else:
+        tau1 = (np.mean((Z_x) ** 2) - 1)/(N1 * np.mean(ld_score_all))
+        tau2 = (np.mean((Z_y) ** 2) - 1)/(N2 * np.mean(ld_score_all))
+        w1 = 1 /(ld_score_all * (1 + N1 * tau1 * ld_score_all) ** 2)
+        w2 = 1 /(ld_score_all * (1 + N2 * tau2 * ld_score_all) ** 2)
+        w1[(w1 < 0) | (w1 == np.inf) | (w1 == -np.inf)] = 0
+        w2[(w2 < 0) | (w2 == np.inf) | (w2 == -np.inf)] = 0
+        m1 = linear_model.LinearRegression().fit(ld_scores, pd.DataFrame((Z_x) ** 2), sample_weight=w1)
+        m2 = linear_model.LinearRegression().fit(ld_scores, pd.DataFrame((Z_y) ** 2), sample_weight=w2)
+        h2_1 = np.dot(W, m1.coef_.T * pd.DataFrame(P) / N1).flatten() ## Add flatten
+        h2_2 = np.dot(W, m2.coef_.T * pd.DataFrame(P) / N2).flatten() ## Add flatten
 
     # Calculate sample overlap correction
-    w1 = 1 + N1 * (h2_1 * ld_score_all / len(ld_score_all))
-    w2 = 1 + N2 * (h2_2 * ld_score_all / len(ld_score_all))
+    if annots is None:
+        w1 = 1 + N1 * (h2_1 * ld_score_all / len(ld_score_all))
+        w2 = 1 + N2 * (h2_2 * ld_score_all / len(ld_score_all))
+    else:
+        w1 = 1 + p0 * (np.mean(Z_x ** 2) - 1) / np.mean(ld_score_all) * ld_score_all / len(ld_score_all)
+        w2 = 1 + p0 * (np.mean(Z_y ** 2) - 1) / np.mean(ld_score_all) * ld_score_all / len(ld_score_all)
 
     w3 = np.mean(Z_x * Z_y) * ld_score_all
     w = 1 / (w1 * w2 + w3 * w3)
-
+    
     # Calculate Jackknife variance estimate
     nblock = 200
     q_block = np.empty([num_annotations, nblock])
@@ -87,8 +103,8 @@ def calculate(gwas_snps, ld_scores, annots, N1, N2):
             h2_1_block[i][j] = (tot1 - np.dot(b_x, b_x)) / ((len(df_x) - len(b_x)) * N1) - 1 / N1
             h2_2_block[i][j] = (tot2 - np.dot(b_y, b_y)) / ((len(df_y) - len(b_y)) * N2) - 1 / N2
 
-    h2_1 = np.mean(h2_1_block, axis=1)
-    h2_2 = np.mean(h2_2_block, axis=1)
+    # h2_1 = np.mean(h2_1_block, axis=1)
+    # h2_2 = np.mean(h2_2_block, axis=1)
 
     # rho
     rho_block = W.dot(inv(S)).dot(q_block)
@@ -104,19 +120,19 @@ def calculate(gwas_snps, ld_scores, annots, N1, N2):
     rho_corrected = np.mean(rho_corrected, axis=1)
     
     # genetic correlation
-    corr = np.mean(corr_block)
-    corr_corrected = np.mean(corr_adjust)
+    corr = np.mean(corr_block, axis=1) # add axis = 1
+    corr_corrected = np.mean(corr_adjust, axis=1)
 
     if np.isnan(corr).any() or np.isnan(corr_corrected).any():
         print('Some correlation estimates are NaN because the heritability '
               'estimates were negative.')
 
     # p-value and standard error
-    cov_rho = np.array([np.cov(rho_block, bias=True) * (nblock - 1)], ndmin=2)
+    cov_rho = np.array(np.cov(rho_block, bias=True) * (nblock - 1), ndmin=2)
     se_rho = cov_rho.diagonal() ** 0.5
-    cov_corr = np.array([np.cov(corr_block, bias=True) * (nblock - 1)], ndmin=2)
+    cov_corr = np.array(np.cov(corr_block, bias=True) * (nblock - 1), ndmin=2)
     se_corr = cov_corr.diagonal() ** 0.5
-    cov_corr_adjust = np.array([np.cov(corr_adjust, bias=True) * (nblock - 1)], ndmin=2)
+    cov_corr_adjust = np.array(np.cov(corr_adjust, bias=True) * (nblock - 1), ndmin=2)
     se_corr_adjust = cov_corr_adjust.diagonal() ** 0.5
     p_value = norm.sf(abs(rho / se_rho)) * 2
     p_value_corrected = norm.sf(abs(rho_corrected / se_rho)) * 2
