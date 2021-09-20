@@ -107,6 +107,7 @@ def prep(bfile, annot, sumstats1, sumstats2):
     # flip sign of z-score for allele reversals
     allign_alleles(df)
     df = df[matched_or_reversed(df)]
+    df = df[np.logical_not(df.SNP.duplicated(keep=False))]
 
     return (df[['CHR', 'SNP', 'Z_x', 'Z_y']],
             dfs[0]['N_x'].max(),
